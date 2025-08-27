@@ -9,6 +9,7 @@ class UserService {
         address: Joi.string().required(),
         role: Joi.string().required(),
         status: Joi.string().required(),
+        image: Joi.string().empty(),
       });
       let response = userSchema.validate(data);
       if (response.error) {

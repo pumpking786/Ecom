@@ -6,6 +6,10 @@ class AuthController {
   registerUser = (req, res, next) => {
     try {
       let body = req.body;
+      if (req.file) {
+        // console.log(req.file);
+        body.image = req.file.filename;
+      }
       this.user_svc.validateUser(body);
       res.json({
         result: body,
