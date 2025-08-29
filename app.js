@@ -3,6 +3,7 @@ const app = express();
 
 const routes = require("./routes/");
 
+app.use("/assets", express.static("public/"));
 app.use(express.json());
 app.use(
   express.urlencoded({
