@@ -5,7 +5,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
 let pendingUsers = [];
-let registeredUsers = [];
+// let registeredUsers = [];
 
 class AuthController {
   constructor() {
@@ -54,7 +54,7 @@ class AuthController {
     }
   };
   // Step 2: Verify OTP and register
-  verifyOtp = (req, res, next) => {
+  verifyOtp = async (req, res, next) => {
     try {
       const { email, otp } = req.body;
 
@@ -72,7 +72,7 @@ class AuthController {
 
       // Move user to registered
       const user = pendingUsers.splice(index, 1)[0];
-      registeredUsers.push(user);
+      let registeredUser = await this.user_svc.createUser(user);
 
       res.json({
         status: true,
