@@ -90,7 +90,7 @@ class UserService extends DbService {
       };
       this.pendingUsers.push(pendingUser);
 
-      // Send OTP email (commented out as in original)
+      // Send OTP via email (commented out as in original)
       // let transporter = nodemailer.createTransport({
       //   host: SMTP.HOST,
       //   port: SMTP.PORT,
