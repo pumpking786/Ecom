@@ -6,8 +6,14 @@ const authenticateJWT = (req, res, next) => {
   if (authHeader) {
     const token = authHeader.split(" ")[1];
 
-    jwt.verify(token, "YOUR_SECRET_KEY", (err, user) => {
+    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
       if (err) {
+        if (err.name === "TokenExpiredError") {
+          return res.status(401).json({
+            status: false,
+            msg: "Access token has expired. Please log in again to obtain a new token.",
+          });
+        }
         return res.status(403).json({ status: false, msg: "Forbidden" });
       }
       req.user = user; // attach user to request

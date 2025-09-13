@@ -1,5 +1,5 @@
 const { MongoClient } = require("mongodb");
-const { DB } = require("../../config/config");
+const { DB, ENVIRONMENT } = require("../../config/config");
 
 class DbService {
   constructor() {
@@ -7,9 +7,22 @@ class DbService {
   }
   connect = async () => {
     try {
-      let client = await MongoClient.connect(
-        DB.PROTOCOL + "://" + DB.HOST + ":" + DB.PORT
-      );
+      let DB_URL = "";
+      if (ENVIRONMENT === "dev") {
+        DB_URL = DB.PROTOCOL + "://" + DB.HOST + ":" + DB.PORT;
+      } else if (ENVIRONMENT === "prod") {
+        DB_URL =
+          DB.PROTOCOL +
+          "://" +
+          DB.USER +
+          ":" +
+          DB.PWD +
+          "@" +
+          DB.HOST +
+          ":" +
+          DB.PORT;
+      }
+      let client = await MongoClient.connect(DB_URL);
       this.db = client.db(DB.NAME);
     } catch (err) {
       throw err;

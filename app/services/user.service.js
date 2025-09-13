@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 const { SMTP } = require("../../config/config");
 const DbService = require("./db.service");
-
+const UserModel = require("../model/user.model");
 class UserService extends DbService {
   constructor() {
     super();
@@ -69,9 +69,8 @@ class UserService extends DbService {
       // Validate input
       this.validateRegister(data);
       // Check for duplicate email in MongoDB
-      const existingUser = await this.db
-        .collection("users")
-        .findOne({ email: data.email });
+      const existingUser = await UserModel.findOne({ email: data.email });
+
       if (existingUser) {
         throw new Error("Email already registered");
       }
@@ -81,14 +80,23 @@ class UserService extends DbService {
       // Generate 6-digit OTP
       const otp = Math.floor(100000 + Math.random() * 900000);
 
-      // Create a user object and store in pendingUsers
+      // New pending user object
       const pendingUser = {
-        name: data.name,
-        email: data.email,
-        password: hashedPassword,
-        otp: otp,
+        ...data,
+        password: hashedPassword, // always hashed
+        otp, // ✅ must include OTP
       };
-      this.pendingUsers.push(pendingUser);
+
+      // Check if email already exists in pendingUsers
+      const index = this.pendingUsers.findIndex((u) => u.email === data.email);
+
+      if (index !== -1) {
+        // Overwrite the existing pending user
+        this.pendingUsers[index] = pendingUser;
+      } else {
+        // Add new pending user
+        this.pendingUsers.push(pendingUser);
+      }
 
       // Send OTP via email (commented out as in original)
       // let transporter = nodemailer.createTransport({
@@ -146,16 +154,18 @@ class UserService extends DbService {
 
       // Move user to registered
       const user = this.pendingUsers.splice(index, 1)[0];
-      await this.db.collection("users").insertOne({
-        name: user.name,
-        email: user.email,
-        password: user.password,
-      });
+      let user_obj = new UserModel(user);
+      return await user_obj.save();
+      // await this.db.collection("users").insertOne({
+      //   name: user.name,
+      //   email: user.email,
+      //   password: user.password,
+      // });
 
-      return {
-        name: user.name,
-        email: user.email,
-      };
+      // return {
+      //   name: user.name,
+      //   email: user.email,
+      // };
     } catch (err) {
       console.error("Verify OTP error:", err.message);
       throw new Error(err.message);
@@ -169,7 +179,7 @@ class UserService extends DbService {
       const { email, password } = data;
 
       // Find user in MongoDB
-      const user = await this.db.collection("users").findOne({ email });
+      const user = await UserModel.findOne({ email });
       if (!user) {
         throw new Error("Credentials do not match");
       }
@@ -183,7 +193,7 @@ class UserService extends DbService {
       // Create JWT token
       const token = jwt.sign(
         { email: user.email, name: user.name, id: user._id },
-        process.env.JWT_SECRET || "YOUR_SECRET_KEY",
+        process.env.JWT_SECRET,
         { expiresIn: "1h" }
       );
 
@@ -194,6 +204,14 @@ class UserService extends DbService {
     } catch (err) {
       console.error("Login service error:", err.message);
       throw new Error(err.message);
+    }
+  };
+  getUserById = async (id) => {
+    try {
+      let user = await UserModel.findById(id);
+      return user;
+    } catch (err) {
+      throw err;
     }
   };
 }

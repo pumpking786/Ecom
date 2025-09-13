@@ -1,6 +1,8 @@
 require("dotenv").config();
 const express = require("express");
 const app = express();
+require("./config/mongoose.config");
+
 const routes = require("./routes/");
 
 app.use("/assets", express.static("public/"));

@@ -1,5 +1,6 @@
 const PASS = process.env.GMAIL_APPPASS;
 const Config = {
+  ENVIRONMENT: "dev",
   SMTP: {
     HOST: "smtp.gmail.com", //mailtrap user garne
     PORT: 465,

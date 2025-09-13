@@ -1,7 +1,8 @@
 const express = require("express");
+const authenticateJWT = require("../app/middleware/authenticationJWT");
 const cat_routes = express();
 
-cat_routes.get("/", (req, res) => {
+cat_routes.get("/", authenticateJWT, (req, res) => {
   res.json("Categories got");
 });
 cat_routes.post("/", (req, res) => {
