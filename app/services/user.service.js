@@ -5,69 +5,19 @@ const nodemailer = require("nodemailer");
 const { SMTP } = require("../../config/config");
 const DbService = require("./db.service");
 const UserModel = require("../model/user.model");
+const { response } = require("express");
+const { AuthValidation } = require("../../validation/Auth.validation");
 class UserService extends DbService {
   constructor() {
     super();
+    this.authValidation = new AuthValidation();
     this.pendingUsers = [];
   }
-
-  validateRegister = (data) => {
-    try {
-      const userSchema = Joi.object({
-        name: Joi.string().min(3).required().messages({
-          "string.min": "Name must be at least 3 characters long",
-          "any.required": "Name is required",
-        }),
-        email: Joi.string().email().required().messages({
-          "string.email": "Please provide a valid email address",
-          "any.required": "Email is required",
-        }),
-        password: Joi.string().min(8).required().messages({
-          "string.min": "Password must be at least 8 characters long",
-          "any.required": "Password is required",
-        }),
-        confirmPassword: Joi.string().required().messages({
-          "any.required": "Confirm password is required",
-        }),
-      });
-      const response = userSchema.validate(data);
-      if (response.error) {
-        throw new Error(response.error.details[0].message);
-      }
-      if (data.password !== data.confirmPassword) {
-        throw new Error("Password and Confirm Password do not match");
-      }
-    } catch (err) {
-      console.error("Validation error:", err.message);
-      throw new Error(err.message);
-    }
-  };
-
-  validateLogin = (data) => {
-    try {
-      const userSchema = Joi.object({
-        email: Joi.string().email().required().messages({
-          "string.email": "Please provide a valid email address",
-          "any.required": "Email is required",
-        }),
-        password: Joi.string().required().messages({
-          "any.required": "Password is required",
-        }),
-      });
-      const response = userSchema.validate(data);
-      if (response.error) {
-        throw new Error(response.error.details[0].message);
-      }
-    } catch (err) {
-      console.error("Validation error:", err.message);
-      throw new Error(err.message);
-    }
-  };
 
   createUser = async (data) => {
     try {
       // Validate input
-      this.validateRegister(data);
+      this.authValidation.validateRegister(data);
       // Check for duplicate email in MongoDB
       const existingUser = await UserModel.findOne({ email: data.email });
 
@@ -127,23 +77,10 @@ class UserService extends DbService {
     }
   };
 
-  verifyOtp = async ({ email, otp }) => {
+  verifyOtp = async (data) => {
     try {
-      // Validate input
-      const schema = Joi.object({
-        email: Joi.string().email().required().messages({
-          "string.email": "Please provide a valid email address",
-          "any.required": "Email is required",
-        }),
-        otp: Joi.number().required().messages({
-          "any.required": "OTP is required",
-        }),
-      });
-      const { error } = schema.validate({ email, otp });
-      if (error) {
-        throw new Error(error.details[0].message);
-      }
-
+      this.authValidation.validateVerifyOtp(data);
+      const { email, otp } = data;
       // Find pending user
       const index = this.pendingUsers.findIndex(
         (u) => u.email === email && u.otp == otp
@@ -175,7 +112,7 @@ class UserService extends DbService {
   login = async (data) => {
     try {
       // Validate input
-      this.validateLogin(data);
+      this.authValidation.validateLogin(data);
       const { email, password } = data;
 
       // Find user in MongoDB
