@@ -42,7 +42,7 @@ class LabelService {
       throw new Error(err.message);
     }
   };
-  getLabel = async (id) => {
+  getLabelById = async (id) => {
     try {
       const label_obj = await LabelModel.findById(id);
       if (!label_obj) {
@@ -52,6 +52,19 @@ class LabelService {
     } catch (err) {
       throw new Error(err.message);
     }
+  };
+  getAllCounts = async (type) => {
+    let filter = {
+      type: type,
+    };
+    let all_data = await LabelModel.find(filter);
+    return all_data.length;
+  };
+  getLabels = async (type, skip, limit) => {
+    let filter = {
+      type: type,
+    };
+    return await LabelModel.find(filter).skip(skip).limit(limit);
   };
 }
 module.exports = LabelService;

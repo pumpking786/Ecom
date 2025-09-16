@@ -41,7 +41,14 @@ label_routes.get(
   validateType,
   authenticateJWT,
   isAdmin,
-  labelCtrl.labelGet
+  labelCtrl.labelGetById
+);
+label_routes.get(
+  "/:type",
+  validateType,
+  authenticateJWT,
+  isAdmin,
+  labelCtrl.getLabels
 );
 
 module.exports = label_routes;
