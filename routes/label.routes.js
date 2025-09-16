@@ -21,5 +21,27 @@ label_routes.post(
   uploader.single("image"),
   labelCtrl.labelStore
 );
+label_routes.put(
+  "/:type/:id",
+  validateType,
+  authenticateJWT,
+  isAdmin,
+  uploader.single("image"),
+  labelCtrl.labelUpdate
+);
+label_routes.delete(
+  "/:type/:id",
+  validateType,
+  authenticateJWT,
+  isAdmin,
+  labelCtrl.labelDelete
+);
+label_routes.get(
+  "/:type/:id",
+  validateType,
+  authenticateJWT,
+  isAdmin,
+  labelCtrl.labelGet
+);
 
 module.exports = label_routes;
