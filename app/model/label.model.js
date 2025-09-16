@@ -12,12 +12,12 @@ const LabelSchemaDef = new mongoose.Schema(
       type: String,
       required: true,
     },
-    status: statusSchema,
     type: {
       type: String,
       enum: ["brand", "banner"],
       default: "banner",
     },
+    status: statusSchema,
     created_by: created_by,
   },
   trigger

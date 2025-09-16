@@ -1,4 +1,3 @@
-const Joi = require("joi");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
@@ -113,7 +112,7 @@ class UserService extends DbService {
     try {
       // Validate input
       this.authValidation.validateLogin(data);
-      const { email, password } = data;
+      const { email, password, role } = data;
 
       // Find user in MongoDB
       const user = await UserModel.findOne({ email });
@@ -129,14 +128,14 @@ class UserService extends DbService {
 
       // Create JWT token
       const token = jwt.sign(
-        { email: user.email, name: user.name, id: user._id },
+        { email: user.email, name: user.name, id: user._id, role: user.role },
         process.env.JWT_SECRET,
         { expiresIn: "1h" }
       );
 
       return {
         token,
-        user: { email: user.email, name: user.name },
+        user,
       };
     } catch (err) {
       console.error("Login service error:", err.message);

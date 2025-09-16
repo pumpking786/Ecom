@@ -1,6 +1,6 @@
 const express = require("express");
 const authenticateJWT = require("../app/middleware/authenticationJWT");
-const { isAdmin } = require("../app/middleware/rbac.middleware");
+const { isAdmin, isCustomer } = require("../app/middleware/rbac.middleware");
 const uploader = require("../app/middleware/uploader.middleware");
 const label_routes = express();
 const LabelController = require("../app/controller/label.controller");

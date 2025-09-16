@@ -18,6 +18,21 @@ class AuthValidation {
         confirmPassword: Joi.string().required().messages({
           "any.required": "Confirm password is required",
         }),
+        role: Joi.string()
+          .valid("admin", "customer", "seller")
+          .optional()
+          .messages({
+            "any.only": "Role must be either admin, customer, or seller",
+          }),
+        status: Joi.string().valid("active", "inactive").optional().messages({
+          "any.only": "Status must be either active or inactive",
+        }),
+        address: Joi.string().optional().allow(null).messages({
+          "string.base": "Address must be a string",
+        }),
+        image: Joi.string().optional().allow(null).messages({
+          "string.base": "Image must be a string",
+        }),
       });
       const response = userSchema.validate(data);
       if (response.error) {
