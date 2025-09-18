@@ -1,18 +1,29 @@
-const express = require("express");
 const authenticateJWT = require("../app/middleware/authenticationJWT");
-const cat_routes = express();
+const { isAdmin, isCustomer } = require("../app/middleware/rbac.middleware");
+const uploader = require("../app/middleware/uploader.middleware");
+const router = require("express").Router();
+const CategoryController = require("../app/controller/category.controller");
+const categoryCtrl = new CategoryController();
 
-cat_routes.get("/", authenticateJWT, (req, res) => {
-  res.json("Categories got");
-});
-cat_routes.post("/", (req, res) => {
-  res.json("Categories added");
-});
-cat_routes.put("/:id", (req, res) => {
-  let id = req.params.id;
-  res.json(`Category ${id} edited`);
-});
-cat_routes.delete("/12", (req, res) => {
-  res.json("Category deleted");
-});
-module.exports = cat_routes;
+router
+  .route("/")
+  .post(
+    authenticateJWT,
+    isAdmin,
+    uploader.single("image"),
+    categoryCtrl.categoryStore
+  )
+  .get(categoryCtrl.getCategories);
+
+router
+  .route("/:id")
+  .put(
+    authenticateJWT,
+    isAdmin,
+    uploader.single("image"),
+    categoryCtrl.categoryUpdate
+  )
+  .delete(authenticateJWT, isAdmin, categoryCtrl.categoryDelete)
+  .get(categoryCtrl.categoryGetById);
+
+module.exports = router;

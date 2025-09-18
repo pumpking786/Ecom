@@ -1,88 +1,96 @@
 const slugify = require("slugify");
 
-const LabelService = require("../services/label.service");
+const CategoryService = require("../services/category.service");
 const { statusSchema } = require("../model/commom.schema");
-class LabelController {
+class CategoryController {
   constructor() {
-    this.label_srv = new LabelService();
+    this.category_srv = new CategoryService();
   }
-  labelStore = async (req, res, next) => {
+  categoryStore = async (req, res, next) => {
     try {
       let data = req.body; // Initialize with request body or {...req.body}
 
       if (req.file) {
         data.image = req.file.filename;
       }
-      data.type = req.params.type;
 
-      if (!data.link || data.link == "null") {
-        data.link = slugify(data.title, {
-          lower: true,
-        });
+      data.slug = slugify(data.name, {
+        lower: true,
+      });
+
+      if (!data.brands || data.brands == "null") {
+        data.brands = null;
+      }
+      if (!data.parent_id || data.parent_id === "null") {
+        data.parent_id = null;
       }
 
-      // this.label_srv.storeValidate(data);
-      let response = await this.label_srv.createLabel(data);
+      // this.category_srv.storeValidate(data);
+      let response = await this.category_srv.createCategory(data);
       res.json({
         result: response,
-        msg: data.type + " created successfully",
+        msg: "Category created successfully",
         status: true,
       });
     } catch (except) {
-      console.log("LabelStore: ", except);
+      console.log("CategoryStore: ", except);
       next({ status: 400, msg: except.message });
     }
   };
-  labelUpdate = async (req, res, next) => {
+  categoryUpdate = async (req, res, next) => {
     try {
       let data = req.body;
       const id = req.params.id;
-      const type = req.params.type;
 
-      const existingLabel = await this.label_srv.getLabelById(id);
+      const existingCategory = await this.category_srv.getCategoryById(id);
 
       if (req.file) {
         data.image = req.file.filename;
       } else {
-        data.image = existingLabel.image;
+        data.image = existingCategory.image;
       }
 
-      if (!data.link || data.link === "null") {
-        data.link = slugify(data.title, { lower: true });
+      data.slug = slugify(data.name, {
+        lower: true,
+      });
+
+      if (!data.brands || data.brands == "null") {
+        data.brands = null;
+      }
+      if (!data.parent_id || data.parent_id === "null") {
+        data.parent_id = null;
       }
 
-      let response = await this.label_srv.updateLabel(id, data);
+      let response = await this.category_srv.updateCategory(id, data);
       res.json({
         result: response,
-        msg: `${type} updated successfully`,
+        msg: `Category updated successfully`,
         status: true,
       });
     } catch (except) {
-      console.log("LabelStore: ", except);
+      console.log("CategoryStore: ", except);
       next({ status: 400, msg: except.message });
     }
   };
-  labelDelete = async (req, res, next) => {
+  categoryDelete = async (req, res, next) => {
     try {
       const id = req.params.id;
-      const type = req.params.type;
 
-      let response = await this.label_srv.deleteLabel(id);
+      let response = await this.category_srv.deleteCategory(id);
       res.json({
         result: response,
-        msg: `${type} deleted successfully`,
+        msg: `Category deleted successfully`,
         status: true,
       });
     } catch (except) {
       next({ status: 400, msg: except.message });
     }
   };
-  labelGetById = async (req, res, next) => {
+  categoryGetById = async (req, res, next) => {
     try {
       const id = req.params.id;
-      const type = req.params.type;
 
-      let response = await this.label_srv.getLabelById(type, id);
+      let response = await this.category_srv.getCategoryById(id);
       res.json({
         result: response,
         msg: `Data fetched`,
@@ -92,7 +100,7 @@ class LabelController {
       next({ status: 400, msg: except.message });
     }
   };
-  getLabels = async (req, res, next) => {
+  getCategories = async (req, res, next) => {
     try {
       const type = req.params.type;
 
@@ -100,7 +108,7 @@ class LabelController {
       // per_page=10
       //total_page=11
       let paginate = {
-        total_count: await this.label_srv.getAllCounts(type),
+        total_count: await this.category_srv.getAllCounts(),
         per_page: req.query.per_page ? parseInt(req.query.per_page) : 10,
         current_page: req.query.page ? parseInt(req.query.page) : 1,
       };
@@ -109,7 +117,7 @@ class LabelController {
       //2=>10-19,10,
       //3=>20-29=>20
       let skip = (paginate.current_page - 1) * paginate.per_page;
-      let data = await this.label_srv.getLabels(type, skip, paginate.per_page);
+      let data = await this.category_srv.getCategories(skip, paginate.per_page);
       res.json({
         result: data,
         status: true,
@@ -121,4 +129,4 @@ class LabelController {
     }
   };
 }
-module.exports = LabelController;
+module.exports = CategoryController;

@@ -36,19 +36,7 @@ label_routes.delete(
   isAdmin,
   labelCtrl.labelDelete
 );
-label_routes.get(
-  "/:type/:id",
-  validateType,
-  authenticateJWT,
-  isAdmin,
-  labelCtrl.labelGetById
-);
-label_routes.get(
-  "/:type",
-  validateType,
-  authenticateJWT,
-  isAdmin,
-  labelCtrl.getLabels
-);
+label_routes.get("/:type/:id", validateType, labelCtrl.labelGetById);
+label_routes.get("/:type", validateType, labelCtrl.getLabels);
 
 module.exports = label_routes;

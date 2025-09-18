@@ -42,9 +42,13 @@ class LabelService {
       throw new Error(err.message);
     }
   };
-  getLabelById = async (id) => {
+  getLabelById = async (type, id) => {
     try {
-      const label_obj = await LabelModel.findById(id);
+      let filter = {
+        type: type,
+        _id: id,
+      };
+      const label_obj = await LabelModel.findOne(filter);
       if (!label_obj) {
         throw new Error("Label Not Found");
       }
