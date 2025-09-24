@@ -20,10 +20,9 @@ class ProductService {
       throw new Error(err.message);
     }
   };
-  updateProduct = async (id, data, created_by) => {
+  updateProduct = async (id, data) => {
     try {
-      data.created_by = created_by;
-      this.productValidation.updateValidate(data);
+      this.productValidation.storeValidate(data);
       const product_obj = await ProductModel.findByIdAndUpdate(id, data, {
         new: true,
       });

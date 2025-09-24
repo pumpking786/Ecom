@@ -89,11 +89,7 @@ class ProductController {
         Number(data.price) - Number(data.price) * (Number(data.discount) / 100);
       data.is_featured = !!data.is_featured; //true
 
-      let response = await this.product_srv.updateProduct(
-        id,
-        data,
-        req.user.id
-      );
+      let response = await this.product_srv.updateProduct(id, data);
       res.json({
         result: response,
         msg: `Product updated successfully`,
