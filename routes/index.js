@@ -10,6 +10,10 @@ app_routes.use(user_routes);
 const cat_routes = require("./category.routes");
 app_routes.use("/category", cat_routes); // Mount at /category
 
+const product_routes = require("./product.routes");
+app_routes.use("/product", product_routes);
+
 const label_routes = require("./label.routes");
 app_routes.use(label_routes);
+
 module.exports = app_routes;
