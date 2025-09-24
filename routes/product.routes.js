@@ -1,5 +1,9 @@
 const authenticateJWT = require("../app/middleware/authenticationJWT");
-const { isAdmin, isCustomer } = require("../app/middleware/rbac.middleware");
+const {
+  isAdmin,
+  isCustomer,
+  isAdminSeller,
+} = require("../app/middleware/rbac.middleware");
 const uploader = require("../app/middleware/uploader.middleware");
 const router = require("express").Router();
 const ProductController = require("../app/controller/product.controller");
@@ -9,7 +13,7 @@ router
   .route("/")
   .post(
     authenticateJWT,
-    isAdmin,
+    isAdminSeller,
     uploader.array("images"),
     productCtrl.productStore
   )
@@ -19,7 +23,7 @@ router
   .route("/:id")
   .put(
     authenticateJWT,
-    isAdmin,
+    isAdminSeller,
     uploader.array("images"),
     productCtrl.productUpdate
   )
