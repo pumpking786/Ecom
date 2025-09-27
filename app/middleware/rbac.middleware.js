@@ -15,6 +15,8 @@ const isSeller = (req, res, next) => {
 };
 
 const isCustomer = (req, res, next) => {
+  // console.log(req.user.id);
+
   if (req.user.role === "customer") {
     next();
   } else {
